@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SMSBackup</string>
+    <string name="stringErase">Mass erase</string>
 </resources>
