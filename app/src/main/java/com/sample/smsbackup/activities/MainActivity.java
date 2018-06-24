@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     //Constants
     private static final int PERMISSIONS_REQUEST_CODE = 1;
     private static final int ERASE_REQUEST_CODE = 2;
+    private static final int BACKUP_REQUEST_CODE = 3;
 
     //Fields
     SMSInboxServices smsService;
@@ -75,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btnErase:
                 runService(ERASE_REQUEST_CODE);
                 break;
+            case R.id.btnBackup:
+                runService(BACKUP_REQUEST_CODE);
+                break;
             default:
                 break;
         }
@@ -95,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
                     askForDefaultApp(ERASE_REQUEST_CODE);
                 }
                 break;
-
+            case BACKUP_REQUEST_CODE:
+                smsService.backup();
             default:
                 break;
         }
