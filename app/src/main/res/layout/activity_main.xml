@@ -16,7 +16,7 @@
         android:layout_marginTop="16dp"
         android:layout_weight="1"
         android:text="@string/stringErase"
-        android:onClick="erase"
+        android:onClick="onClick"
         tools:layout_editor_absoluteX="148dp"
         tools:layout_editor_absoluteY="6dp" />
 </LinearLayout>
