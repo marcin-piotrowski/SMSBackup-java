@@ -4,14 +4,25 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Telephony;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveClient;
+import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.drive.DriveResourceClient;
+import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.gson.Gson;
-import com.sample.smsbackup.R;
 import com.sample.smsbackup.models.SMS;
+import com.sample.smsbackup.utilities.SecretService;
 
-import org.json.JSONObject;
-
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 
 public class SMSInboxServices {
@@ -30,9 +41,18 @@ public class SMSInboxServices {
     private Activity context;
 
     //Methods
-    public void backup(){
-        String json = makeJSON();
-        
+    public void backup(GoogleSignInAccount googleSignInAccount){
+        try {
+            String json = makeJSON();
+            String encrypted = SecretService.encrypt(json, googleSignInAccount);
+            uploadToCloud(encrypted, googleSignInAccount);
+        }catch (Exception e) {
+            Toast.makeText(
+                    context.getApplicationContext(),
+                    "Error occurs during encrypting! Operation aborted...",
+                    Toast.LENGTH_LONG)
+                    .show();
+        }
     }
 
     public void erase() {
@@ -60,6 +80,45 @@ public class SMSInboxServices {
         }
 
         return new Gson().toJson(mailBox);
+    }
+
+    private void uploadToCloud(final String json, GoogleSignInAccount googleSignInAccount){
+        DriveResourceClient driveResourceClient =
+                Drive.getDriveResourceClient(context.getApplicationContext(), googleSignInAccount);
+        Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
+        Task<DriveContents> createContentsTask = driveResourceClient.createContents();
+
+        Tasks.whenAll(appFolderTask, createContentsTask)
+                .continueWithTask(task -> {
+                    DriveFolder parent = appFolderTask.getResult();
+                    DriveContents contents = createContentsTask.getResult();
+                    OutputStream outputStream = contents.getOutputStream();
+                    try (Writer writer = new OutputStreamWriter(outputStream)) {
+                        writer.write(json);
+                    }
+
+                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                            .setTitle(String.valueOf(System.currentTimeMillis()))
+                            .setMimeType("application/json")
+                            .setStarred(true)
+                            .build();
+
+                    return driveResourceClient.createFile(parent, changeSet, contents);
+                })
+                .addOnSuccessListener(context,
+                        driveFile -> Toast.makeText(
+                                context.getApplicationContext(),
+                                "Backup successes!",
+                                Toast.LENGTH_LONG)
+                                .show())
+                .addOnFailureListener(context,
+                        e -> {Toast.makeText(
+                        context.getApplicationContext(),
+                        "Error occurs during uploading! Operation aborted...",
+                        Toast.LENGTH_LONG)
+                        .show();
+                            Log.e(this.getClass().getSimpleName(), "Upload to Drive failed! Exception message: " + e.getMessage());
+                        });
     }
 
     //Cnt

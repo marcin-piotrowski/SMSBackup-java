@@ -6,9 +6,17 @@ import android.content.pm.PackageManager;
 import android.provider.Telephony;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.tasks.Task;
 import com.sample.smsbackup.R;
 import com.sample.smsbackup.services.SMSInboxServices;
 
@@ -16,11 +24,14 @@ public class MainActivity extends AppCompatActivity {
 
     //Constants
     private static final int PERMISSIONS_REQUEST_CODE = 1;
-    private static final int ERASE_REQUEST_CODE = 2;
-    private static final int BACKUP_REQUEST_CODE = 3;
+    private static final int SIGN_IN_REQUEST_CODE = 2;
+    private static final int ERASE_REQUEST_CODE = 3;
+    private static final int BACKUP_REQUEST_CODE = 4;
 
     //Fields
     SMSInboxServices smsService;
+    GoogleSignInClient googleSignInClient;
+    GoogleSignInAccount googleSignInAccount = null;
 
     //Lifecycle
     @Override
@@ -28,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        googleSignInClient = buildGoogleSignInClient();
         smsService = new SMSInboxServices(this);
     }
 
@@ -37,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
         checkPermissions(Manifest.permission.READ_SMS);
         checkPermissions(Manifest.permission.SEND_SMS);
+        checkPermissions(Manifest.permission.GET_ACCOUNTS);
+        checkPermissions(Manifest.permission.INTERNET);
+
+        googleSingIn();
     }
 
     //Requests Callbacks
@@ -64,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode){
             case ERASE_REQUEST_CODE:
                 runService(ERASE_REQUEST_CODE);
+                break;
+            case SIGN_IN_REQUEST_CODE:
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                handleSignInResult(task);
                 break;
             default:
                 break;
@@ -100,14 +120,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case BACKUP_REQUEST_CODE:
-                smsService.backup();
+                smsService.backup(googleSignInAccount);
             default:
                 break;
         }
     }
 
-    private void askForDefaultApp(int requestCode)
-    {
+    private void askForDefaultApp(int requestCode) {
         String intentExtraKey = Telephony.Sms.getDefaultSmsPackage(this) + Telephony.Sms.Intents.EXTRA_PACKAGE_NAME;
         Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
         intent.putExtra(intentExtraKey, getPackageName());
@@ -117,6 +136,32 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissions(String permission) {
         if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(new String[]{permission}, 0);
+        }
+    }
+
+    private void googleSingIn(){
+
+        googleSignInAccount = GoogleSignIn.getLastSignedInAccount(this);
+
+        if(googleSignInAccount == null){
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
+        }
+    }
+
+    private GoogleSignInClient buildGoogleSignInClient() {
+        GoogleSignInOptions signInOptions =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestScopes(Drive.SCOPE_APPFOLDER)
+                        .build();
+        return GoogleSignIn.getClient(this, signInOptions);
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            googleSignInAccount = completedTask.getResult(ApiException.class);
+        } catch (ApiException e) {
+            Log.w(this.getClass().getSimpleName(), "signInResult:failed code=" + e.getStatusCode());
         }
     }
 }
