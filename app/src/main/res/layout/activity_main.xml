@@ -19,6 +19,17 @@
         android:text="@string/stringBackup"
         android:onClick="onClick" />
     <Button
+        android:id="@+id/btnRestore"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:text="@string/stringRestore"
+        android:onClick="onClick" />
+    <Button
         android:id="@+id/btnErase"
         android:layout_width="match_parent"
         android:layout_height="0dp"

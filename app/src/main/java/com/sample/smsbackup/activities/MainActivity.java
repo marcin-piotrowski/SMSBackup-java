@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int SIGN_IN_REQUEST_CODE = 2;
     private static final int ERASE_REQUEST_CODE = 3;
     private static final int BACKUP_REQUEST_CODE = 4;
+    private static final int RESTORE_REQUEST_CODE = 5;
 
     //Fields
     SMSInboxServices smsService;
@@ -81,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
             case ERASE_REQUEST_CODE:
                 runService(ERASE_REQUEST_CODE);
                 break;
+            case RESTORE_REQUEST_CODE:
+                runService(RESTORE_REQUEST_CODE);
+                break;
             case SIGN_IN_REQUEST_CODE:
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 handleSignInResult(task);
@@ -93,11 +97,14 @@ public class MainActivity extends AppCompatActivity {
     //Methods
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btnErase:
-                runService(ERASE_REQUEST_CODE);
-                break;
             case R.id.btnBackup:
                 runService(BACKUP_REQUEST_CODE);
+                break;
+            case R.id.btnRestore:
+                runService(RESTORE_REQUEST_CODE);
+                break;
+            case R.id.btnErase:
+                runService(ERASE_REQUEST_CODE);
                 break;
             default:
                 break;
@@ -106,10 +113,24 @@ public class MainActivity extends AppCompatActivity {
 
     public void runService(int requestCode) {
         switch (requestCode) {
+            case BACKUP_REQUEST_CODE:
+                smsService.backup(googleSignInAccount);
+                break;
+            case RESTORE_REQUEST_CODE:
+                if(Telephony.Sms.getDefaultSmsPackage(this).equals(getPackageName())) {
+                    smsService.restore(googleSignInAccount);
+                } else {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "To process you has to choose SMSBackup",
+                            Toast.LENGTH_LONG)
+                            .show();
+                    askForDefaultApp(RESTORE_REQUEST_CODE);
+                }
+                break;
             case ERASE_REQUEST_CODE:
                 if(Telephony.Sms.getDefaultSmsPackage(this).equals(getPackageName())) {
                     smsService.erase();
-                    askForDefaultApp(0);
                 } else {
                     Toast.makeText(
                             getApplicationContext(),
@@ -119,14 +140,12 @@ public class MainActivity extends AppCompatActivity {
                     askForDefaultApp(ERASE_REQUEST_CODE);
                 }
                 break;
-            case BACKUP_REQUEST_CODE:
-                smsService.backup(googleSignInAccount);
             default:
                 break;
         }
     }
 
-    private void askForDefaultApp(int requestCode) {
+    public void askForDefaultApp(int requestCode) {
         String intentExtraKey = Telephony.Sms.getDefaultSmsPackage(this) + Telephony.Sms.Intents.EXTRA_PACKAGE_NAME;
         Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
         intent.putExtra(intentExtraKey, getPackageName());

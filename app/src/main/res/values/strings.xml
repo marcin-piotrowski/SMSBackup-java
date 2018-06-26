@@ -4,4 +4,5 @@
     <string name="stringPermissionDenied">Permission denied!</string>
     <string name="stringPermissionGranted">Permissions granted</string>
     <string name="stringBackup">Make a backup</string>
+    <string name="stringRestore">Restore a backup</string>
 </resources>
