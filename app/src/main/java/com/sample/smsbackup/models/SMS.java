@@ -2,6 +2,14 @@ package com.sample.smsbackup.models;
 
 public class SMS {
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public String getAddress() {
         return address;
     }
@@ -34,9 +42,15 @@ public class SMS {
         this.type = type;
     }
 
+    private long id;
     private String address;
     private String body;
     private String date;
     private String type;
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof SMS && id == ((SMS) obj).id;
+    }
 
 }

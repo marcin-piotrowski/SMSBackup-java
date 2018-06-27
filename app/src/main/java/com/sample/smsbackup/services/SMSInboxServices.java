@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class SMSInboxServices {
 
     //Constants
-    private static final String BACKUP_FILE_NAME = "7";
+    private static final String BACKUP_FILE_NAME = "backup";
     private static final Uri INBOX_URI = Telephony.Sms.CONTENT_URI;
     private static final String[] PROJECTION = new String[]
             {
@@ -61,7 +61,6 @@ public class SMSInboxServices {
                     if(msgFromCloud.size() > 0) {
                         Log.i(this.getClass().getSimpleName(), "Compering cloud content to device");
                         smsInInbox.removeAll(msgFromCloud);
-                        msgFromCloud.addAll(smsInInbox);
                         Log.i(this.getClass().getSimpleName(), "Found " + smsInInbox.size() + " not stored yet messages");
                     }
 
@@ -75,6 +74,7 @@ public class SMSInboxServices {
                     }
 
                     try {
+                        msgFromCloud.addAll(smsInInbox);
                         String encryptedJSON = SecretService.encrypt(makeJSON(smsInInbox), googleSignInAccount);
                         uploadToCloud(encryptedJSON, googleSignInAccount);
                     } catch (Exception e) {
@@ -131,24 +131,31 @@ public class SMSInboxServices {
 
         int count = 0;
 
-        for (SMS sms : list) {
+        if(list.size() > 0) {
+            for (SMS sms : list) {
 
-            ContentValues smsRow = new ContentValues();
-            smsRow.put(Telephony.Sms.ADDRESS, sms.getAddress());
-            smsRow.put(Telephony.Sms.BODY, sms.getBody());
-            smsRow.put(Telephony.Sms.DATE, sms.getDate());
-            smsRow.put(Telephony.Sms.TYPE, sms.getType());
+                ContentValues smsRow = new ContentValues();
+                smsRow.put(Telephony.Sms.ADDRESS, sms.getAddress());
+                smsRow.put(Telephony.Sms.BODY, sms.getBody());
+                smsRow.put(Telephony.Sms.DATE, sms.getDate());
+                smsRow.put(Telephony.Sms.TYPE, sms.getType());
 
-            context.getContentResolver().insert(INBOX_URI, smsRow);
-            count++;
+                context.getContentResolver().insert(INBOX_URI, smsRow);
+                count++;
+            }
+
+            Toast.makeText(
+                    context.getApplicationContext(),
+                    count + " messages recover. No choose your favorite SMS app",
+                    Toast.LENGTH_LONG)
+                    .show();
+        } else {
+            Toast.makeText(
+                    context.getApplicationContext(),
+                    "Nothing to recover",
+                    Toast.LENGTH_LONG)
+                    .show();
         }
-
-        Toast.makeText(
-                context.getApplicationContext(),
-                count + " messages recover. No choose your favorite SMS app",
-                Toast.LENGTH_LONG)
-                .show();
-
         context.askForDefaultApp(0);
     }
 
