@@ -5,7 +5,8 @@
     <color name="colorAccent">#FF4081</color>
     <color name="appBlue">#a2daf3</color>
     <color name="ic_launcher_background">#4885ED</color>#E0E0E0
-    <color name="textMain">#E0E0E0</color>
-    <color name="dotActive">#E0E0E0</color>
-    <color name="doInactive">#99E0E0E0</color>
+    <color name="textMain">#37474F</color>
+    <color name="dotActive">#EEEEEE</color>
+    <color name="doInactive">#99EEEEEE</color>
+    <color name="bgBlur">#55DDDDDD</color>
 </resources>

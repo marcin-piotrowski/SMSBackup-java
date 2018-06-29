@@ -67,7 +67,7 @@ public class WelcomeActivity extends AppCompatActivity {
         homeActivityIntent.setFlags(homeActivityIntent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(homeActivityIntent);
         SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, 0);
-        //settings.edit().putBoolean(Constants.PREFS_FIRST_LUNCH, false).apply();
+        settings.edit().putBoolean(Constants.PREFS_FIRST_LUNCH, false).apply();
         finish();
     }
 

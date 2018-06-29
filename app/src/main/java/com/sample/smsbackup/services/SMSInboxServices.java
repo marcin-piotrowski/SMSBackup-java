@@ -5,8 +5,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.Telephony;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
@@ -20,6 +21,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sample.smsbackup.R;
 import com.sample.smsbackup.activities.HomeActivity;
 import com.sample.smsbackup.models.SMS;
 import com.sample.smsbackup.utilities.SecretService;
@@ -50,6 +52,7 @@ public class SMSInboxServices {
 
     //Fields
     private HomeActivity context;
+    private View mainLayout;
 
     //Methods
     public void backup(GoogleSignInAccount googleSignInAccount) {
@@ -65,11 +68,9 @@ public class SMSInboxServices {
                     }
 
                     if(smsInInbox.size() < 1){
-                        Toast.makeText(
-                                context.getApplicationContext(),
-                                "No SMS to backup",
-                                Toast.LENGTH_LONG)
-                                .show();
+                        Snackbar
+                            .make(mainLayout, R.string.noBackup, Snackbar.LENGTH_SHORT)
+                            .show();
                         return;
                     }
 
@@ -78,10 +79,8 @@ public class SMSInboxServices {
                         String encryptedJSON = SecretService.encrypt(makeJSON(smsInInbox), googleSignInAccount);
                         uploadToCloud(encryptedJSON, googleSignInAccount);
                     } catch (Exception e) {
-                        Toast.makeText(
-                                context.getApplicationContext(),
-                                "Error occurs while making a backup",
-                                Toast.LENGTH_LONG)
+                        Snackbar
+                                .make(mainLayout, R.string.errorBackup, Snackbar.LENGTH_SHORT)
                                 .show();
                         Log.e(this.getClass().getName(), "Error occurs while making a backup. Exception message: " + e.getMessage());
                     }
@@ -96,13 +95,13 @@ public class SMSInboxServices {
     }
 
     public void erase() {
+
         int rowDeleted = context.getContentResolver().delete(INBOX_URI, "_id > 0", null);
-        context.askForDefaultApp(0);
-        Toast.makeText(
-                context.getApplicationContext(),
-                rowDeleted + " messages deleted. Now choose your favorite SMS app",
-                Toast.LENGTH_LONG)
+
+        Snackbar
+                .make(mainLayout, context.getString(R.string.eraseSuccess, rowDeleted), Snackbar.LENGTH_LONG)
                 .show();
+        context.askForDefaultApp(0);
     }
 
     private String makeJSON(List<SMS> list) {
@@ -144,16 +143,12 @@ public class SMSInboxServices {
                 count++;
             }
 
-            Toast.makeText(
-                    context.getApplicationContext(),
-                    count + " messages recover. No choose your favorite SMS app",
-                    Toast.LENGTH_LONG)
+            Snackbar
+                    .make(mainLayout, context.getString(R.string.successRestore, count), Snackbar.LENGTH_LONG)
                     .show();
         } else {
-            Toast.makeText(
-                    context.getApplicationContext(),
-                    "Nothing to recover",
-                    Toast.LENGTH_LONG)
+            Snackbar
+                    .make(mainLayout, R.string.noRestore, Snackbar.LENGTH_LONG)
                     .show();
         }
         context.askForDefaultApp(0);
@@ -285,18 +280,14 @@ public class SMSInboxServices {
                                                 return commitTask;
                                             })
                                             .addOnSuccessListener(context, aVoid -> {
-                                                Toast.makeText(
-                                                        context.getApplicationContext(),
-                                                        "Backup success!",
-                                                        Toast.LENGTH_LONG)
+                                                Snackbar
+                                                        .make(mainLayout, R.string.successBackup, Snackbar.LENGTH_LONG)
                                                         .show();
                                                 Log.i(this.getClass().getSimpleName(), "Backup file rewrite to " + json);
                                             })
                                             .addOnFailureListener(context, e -> {
-                                                Toast.makeText(
-                                                        context.getApplicationContext(),
-                                                        "Error occurs during uploading! Operation aborted...",
-                                                        Toast.LENGTH_LONG)
+                                                Snackbar
+                                                        .make(mainLayout, R.string.errorBackup, Snackbar.LENGTH_LONG)
                                                         .show();
                                                 Log.e(this.getClass().getSimpleName(), "Upload to Drive failed! Exception message: " + e.getMessage());
                                             });
@@ -322,18 +313,14 @@ public class SMSInboxServices {
                                                 return driveResourceClient.createFile(folder, changeSet, contents);
                                             })
                                             .addOnSuccessListener(context, driveFile -> {
-                                                Toast.makeText(
-                                                        context.getApplicationContext(),
-                                                        "Backup successes!",
-                                                        Toast.LENGTH_LONG)
+                                                Snackbar
+                                                        .make(mainLayout, R.string.successBackup, Snackbar.LENGTH_LONG)
                                                         .show();
                                                 Log.i(this.getClass().getSimpleName(), "Backup file <" + BACKUP_FILE_NAME + "> created with content -> " + json);
                                             })
                                             .addOnFailureListener(context, e -> {
-                                                Toast.makeText(
-                                                        context.getApplicationContext(),
-                                                        "Error occurs during uploading! Operation aborted...",
-                                                        Toast.LENGTH_LONG)
+                                                Snackbar
+                                                        .make(mainLayout, R.string.errorUpload, Snackbar.LENGTH_LONG)
                                                         .show();
                                                 Log.e(this.getClass().getSimpleName(), "Upload to Drive failed! Exception message: " + e.getMessage());
                                             });
@@ -345,6 +332,7 @@ public class SMSInboxServices {
     //Cnt
     public SMSInboxServices(HomeActivity context) {
         this.context = context;
+        mainLayout = context.findViewById(R.id.mainLayout);
     }
 
     private interface Writer {

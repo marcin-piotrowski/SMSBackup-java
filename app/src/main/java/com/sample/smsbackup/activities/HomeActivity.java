@@ -1,9 +1,14 @@
 package com.sample.smsbackup.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.provider.Telephony;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +25,10 @@ import com.google.android.gms.tasks.Task;
 import com.sample.smsbackup.R;
 import com.sample.smsbackup.services.SMSInboxServices;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeActivity extends AppCompatActivity {
 
     //Constants
@@ -29,17 +38,26 @@ public class HomeActivity extends AppCompatActivity {
     private static final int BACKUP_REQUEST_CODE = 4;
     private static final int RESTORE_REQUEST_CODE = 5;
 
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.READ_SMS,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.GET_ACCOUNTS,
+            Manifest.permission.INTERNET
+    };
+
     //Fields
     SMSInboxServices smsService;
     GoogleSignInClient googleSignInClient;
     GoogleSignInAccount googleSignInAccount = null;
+    View mainLayout;
 
     //Lifecycle
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_home);
 
+        mainLayout = findViewById(R.id.mainLayout);
         googleSignInClient = buildGoogleSignInClient();
         smsService = new SMSInboxServices(this);
     }
@@ -48,31 +66,20 @@ public class HomeActivity extends AppCompatActivity {
     protected  void onStart(){
         super.onStart();
 
-        checkPermissions(Manifest.permission.READ_SMS);
-        checkPermissions(Manifest.permission.SEND_SMS);
-        checkPermissions(Manifest.permission.GET_ACCOUNTS);
-        checkPermissions(Manifest.permission.INTERNET);
-
+        if (!checkPermissions()) askPermissions();
         googleSingIn();
     }
 
     //Requests Callbacks
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if(requestCode == PERMISSIONS_REQUEST_CODE) {
-            if (this.checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                        getApplicationContext(),
-                        R.string.stringPermissionGranted,
-                        Toast.LENGTH_SHORT)
-                        .show();
-            } else {
-                Toast.makeText(
-                        getApplicationContext(),
-                        R.string.stringPermissionDenied,
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
+        if(requestCode == PERMISSIONS_REQUEST_CODE && !checkPermissions()) {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+            Toast.makeText(this, R.string.permissionsDenied, Toast.LENGTH_LONG);
         }
     }
 
@@ -104,7 +111,10 @@ public class HomeActivity extends AppCompatActivity {
                 runService(RESTORE_REQUEST_CODE);
                 break;
             case R.id.btnErase:
-                runService(ERASE_REQUEST_CODE);
+                Snackbar
+                        .make(mainLayout, R.string.areYouSure, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.iDo, v -> runService(ERASE_REQUEST_CODE))
+                        .show();
                 break;
             default:
                 break;
@@ -113,35 +123,25 @@ public class HomeActivity extends AppCompatActivity {
 
     public void runService(int requestCode) {
         switch (requestCode) {
-            case BACKUP_REQUEST_CODE:
+            case BACKUP_REQUEST_CODE: {
                 smsService.backup(googleSignInAccount);
                 break;
-            case RESTORE_REQUEST_CODE:
-                if(Telephony.Sms.getDefaultSmsPackage(this).equals(getPackageName())) {
+            }
+            case RESTORE_REQUEST_CODE: {
+                if(Telephony.Sms.getDefaultSmsPackage(this).equals(this.getPackageName()))
                     smsService.restore(googleSignInAccount);
-                } else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "To process you has to choose SMSBackup",
-                            Toast.LENGTH_LONG)
-                            .show();
+                else
                     askForDefaultApp(RESTORE_REQUEST_CODE);
-                }
                 break;
-            case ERASE_REQUEST_CODE:
-                if(Telephony.Sms.getDefaultSmsPackage(this).equals(getPackageName())) {
+            }
+            case ERASE_REQUEST_CODE:{
+                if(Telephony.Sms.getDefaultSmsPackage(this).equals(this.getPackageName()))
                     smsService.erase();
-                } else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "To process you has to choose SMSBackup",
-                            Toast.LENGTH_LONG)
-                            .show();
+                else
                     askForDefaultApp(ERASE_REQUEST_CODE);
-                }
                 break;
-            default:
-                break;
+            }
+            default: {break;}
         }
     }
 
@@ -152,10 +152,28 @@ public class HomeActivity extends AppCompatActivity {
         startActivityForResult(intent, requestCode);
     }
 
-    private void checkPermissions(String permission) {
-        if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
-            requestPermissions(new String[]{permission}, 0);
+    private boolean checkPermissions(){
+        for (String permission : PERMISSIONS) {
+            if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
+                return false;
+            }
         }
+
+        return true;
+    }
+
+    private void askPermissions() {
+
+        ArrayList<String> missingPermission = new ArrayList<>(0);
+
+        for (String permission : PERMISSIONS) {
+            if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
+                missingPermission.add(permission);
+            }
+        }
+
+        if(missingPermission.size() > 0)
+            requestPermissions(missingPermission.toArray(new String[missingPermission.size()]), 0);
     }
 
     private void googleSingIn(){
@@ -180,7 +198,7 @@ public class HomeActivity extends AppCompatActivity {
         try {
             googleSignInAccount = completedTask.getResult(ApiException.class);
         } catch (ApiException e) {
-            Log.w(this.getClass().getSimpleName(), "signInResult:failed code=" + e.getStatusCode());
+            Log.w(this.getClass().getSimpleName(), "signInResult:failed code=" + e.getMessage());
         }
     }
 }

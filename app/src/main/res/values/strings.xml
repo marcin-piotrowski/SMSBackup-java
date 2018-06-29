@@ -1,8 +1,16 @@
 <resources>
     <string name="app_name">SMSBackup</string>
-    <string name="stringErase">Mass erase</string>
-    <string name="stringPermissionDenied">Permission denied!</string>
-    <string name="stringPermissionGranted">Permissions granted</string>
-    <string name="stringBackup">Make a backup</string>
-    <string name="stringRestore">Restore a backup</string>
+
+    <string name="noBackup">Nothing to backup</string>
+    <string name="successBackup">Backup success!</string>
+    <string name="errorBackup">Error occurs while making a backup</string>
+    <string name="noRestore">Nothing to restore</string>
+    <string name="successRestore">%1$d messages restored. Now choose your favorite SMS app</string>
+    <string name="areYouSure">Are you sure?</string>
+    <string name="iDo">YES I DO</string>
+    <string name="eraseSuccess">%1$d messages deleted. Now choose your favorite SMS app</string>
+    <string name="permissionsDenied">In order for the application to work properly, you must give it permission.</string>
+    <string name="givePermm">GIVE PERMISSIONS</string>
+    <string name="quit">QUIT</string>
+    <string name="errorUpload">Error occurs while uploading. Operation aborted!</string>
 </resources>

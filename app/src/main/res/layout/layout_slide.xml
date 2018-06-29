@@ -11,7 +11,7 @@
         android:layout_height="198dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp" />
+        android:layout_marginTop="80dp" />
 
     <TextView
         android:id="@+id/textSlideHeader"
@@ -19,8 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/imgSlide"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:textColor="#E0E0E0"
+        android:layout_marginTop="24dp"
+        android:textColor="@color/textMain"
         android:textSize="28sp" />
 
     <TextView
@@ -29,11 +29,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/textSlideHeader"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:gravity="center_horizontal"
+        android:background="@color/bgBlur"
         android:lineSpacingExtra="4sp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:textColor="@color/textMain"
         android:textSize="20sp" />
 
