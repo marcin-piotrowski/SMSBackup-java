@@ -20,7 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.sample.smsbackup.R;
 import com.sample.smsbackup.services.SMSInboxServices;
 
-public class MainActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity {
 
     //Constants
     private static final int PERMISSIONS_REQUEST_CODE = 1;

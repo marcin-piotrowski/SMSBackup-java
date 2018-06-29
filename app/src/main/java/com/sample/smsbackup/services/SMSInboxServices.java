@@ -20,7 +20,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sample.smsbackup.activities.MainActivity;
+import com.sample.smsbackup.activities.HomeActivity;
 import com.sample.smsbackup.models.SMS;
 import com.sample.smsbackup.utilities.SecretService;
 
@@ -49,7 +49,7 @@ public class SMSInboxServices {
             };
 
     //Fields
-    private MainActivity context;
+    private HomeActivity context;
 
     //Methods
     public void backup(GoogleSignInAccount googleSignInAccount) {
@@ -343,7 +343,7 @@ public class SMSInboxServices {
     }
 
     //Cnt
-    public SMSInboxServices(MainActivity context) {
+    public SMSInboxServices(HomeActivity context) {
         this.context = context;
     }
 
