@@ -3,10 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="appBlue">#a2daf3</color>
-    <color name="ic_launcher_background">#4885ED</color>#E0E0E0
+    <color name="ic_launcher_background">#4885ED</color>
     <color name="textMain">#37474F</color>
     <color name="dotActive">#EEEEEE</color>
     <color name="doInactive">#99EEEEEE</color>
-    <color name="bgBlur">#55DDDDDD</color>
+    <color name="bgApp">#9575CD</color>
+    <color name="bgBlur">#55DDDDDD</color>ef9a9a
 </resources>

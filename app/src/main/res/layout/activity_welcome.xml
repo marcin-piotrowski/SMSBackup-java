@@ -21,7 +21,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
-        android:padding="18dp"/>
+        android:paddingBottom="32dp"/>
 
     <Button
         android:id="@+id/btnGoNext"
@@ -30,9 +30,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:padding="24dp"
+        android:paddingBottom="32dp"
         android:onClick="onGoNext"
-        android:text="GOT IT >"
+        android:text="@string/gotIt"
         android:textColor="@color/dotActive"
         android:textSize="20sp"
         android:visibility="gone" />

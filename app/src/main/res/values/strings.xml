@@ -4,7 +4,7 @@
     <string name="noBackup">Nothing to backup</string>
     <string name="successBackup">Backup success!</string>
     <string name="errorBackup">Error occurs while making a backup</string>
-    <string name="noRestore">Nothing to restore</string>
+    <string name="noRestore">Nothing to restore. Now choose your favorite SMS app</string>
     <string name="successRestore">%1$d messages restored. Now choose your favorite SMS app</string>
     <string name="areYouSure">Are you sure?</string>
     <string name="iDo">YES I DO</string>
@@ -13,4 +13,5 @@
     <string name="givePermm">GIVE PERMISSIONS</string>
     <string name="quit">QUIT</string>
     <string name="errorUpload">Error occurs while uploading. Operation aborted!</string>
+    <string name="gotIt"><![CDATA[GOT IT >]]></string>
 </resources>

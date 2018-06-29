@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="50" />
+                                                <entry key="scalingPercent" value="66" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -35,7 +35,10 @@
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="4885ed" />
-                                      <entry key="foregroundImage" value="C:\Users\user\Desktop\cloud-upload.png" />
+                                      <entry key="foregroundImage" value="C:\Users\user\Desktop\icon.png" />
+                                      <entry key="generateLegacyIcon" value="false" />
+                                      <entry key="generateRoundIcon" value="false" />
+                                      <entry key="generateWebIcon" value="false" />
                                     </map>
                                   </option>
                                 </PersistentState>
