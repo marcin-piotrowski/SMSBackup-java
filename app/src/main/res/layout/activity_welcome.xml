@@ -21,7 +21,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
-        android:paddingBottom="32dp"/>
+        android:paddingBottom="16dp"/>
 
     <Button
         android:id="@+id/btnGoNext"

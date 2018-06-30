@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class SMSInboxServices {
 
     //Constants
-    private static final String BACKUP_FILE_NAME = "backup";
+    private static final String BACKUP_FILE_NAME = "backup6";
     private static final Uri INBOX_URI = Telephony.Sms.CONTENT_URI;
     private static final String[] PROJECTION = new String[]
             {
@@ -76,7 +76,8 @@ public class SMSInboxServices {
 
                     try {
                         msgFromCloud.addAll(smsInInbox);
-                        String encryptedJSON = SecretService.encrypt(makeJSON(smsInInbox), googleSignInAccount);
+                        String encryptedJSON = SecretService.encrypt(makeJSON(msgFromCloud), googleSignInAccount);
+                        Log.e(this.getClass().getName(), makeJSON(msgFromCloud));
                         uploadToCloud(encryptedJSON, googleSignInAccount);
                     } catch (Exception e) {
                         Snackbar
@@ -177,7 +178,7 @@ public class SMSInboxServices {
                                     }
                                 }
 
-                                Log.i(this.getClass().getSimpleName(), "Downloading file");
+                                Log.i(this.getClass().getSimpleName(), "Downloading file...");
                                 if (backupFile != null) {
 
                                     Log.i(this.getClass().getSimpleName(), "Backup file found");
@@ -198,7 +199,7 @@ public class SMSInboxServices {
 
                                                 if (reader == null) {
                                                     Log.i(this.getClass().getSimpleName(),
-                                                            SMSfromCluod.size() + " sms downloaded. Going to compare and store on device.");
+                                                            SMSfromCluod.size() + " sms downloaded. Going to compare and restore on device.");
                                                     writer.store(SMSfromCluod);
                                                 } else {
                                                     Log.i(this.getClass().getSimpleName(),
@@ -251,7 +252,7 @@ public class SMSInboxServices {
                                     }
                                 }
 
-                                Log.i(this.getClass().getSimpleName(), "Uploading file");
+                                Log.i(this.getClass().getSimpleName(), "Uploading file...");
                                 if (backupFile != null) {
 
                                     Log.i(this.getClass().getSimpleName(), "Backup file found");
@@ -270,7 +271,6 @@ public class SMSInboxServices {
                                                 }
 
                                                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                                        .setStarred(true)
                                                         .setLastViewedByMeDate(new Date())
                                                         .build();
 
@@ -307,7 +307,6 @@ public class SMSInboxServices {
                                                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                                                         .setTitle(BACKUP_FILE_NAME)
                                                         .setMimeType("application/json")
-                                                        .setStarred(true)
                                                         .build();
 
                                                 return driveResourceClient.createFile(folder, changeSet, contents);
